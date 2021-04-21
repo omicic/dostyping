@@ -1,58 +1,90 @@
 (function () {
-        let startBtn = $('.start-btn');
-        let mainInput = $('.main-input');
-        let allLines = $('.line');
+    let startBtn = $('.start-btn');
+    let mainInput = $('.main-input');
+    let allLines = $('.line');
+    let allText = [];
+    let score = 0;
+    let displayResult=$('.display-result');
 
-        startBtn.on('click', startGame);
+    startBtn.on('click', startGame);
 
-        function startGame() {
+    function startGame() {
 
-            $(this).hide();
-            //console.log(a);
-            let speed = 1;
-            let textLength = 3;
-            let typingWords = words.filter(word => word.length == textLength);
-            let lvl = 6;
+        $(this).hide();
+        mainInput.focus();
+        let speed = 1;
+        let textLength = 3;
+        let typingWords = words.filter(word => word.length == textLength);
+        let lvl = 6;
 
-            console.log(typingWords);
+        let speedUp = setInterval(function (){
+            textLength++;
+            typingWords = words.filter(word => word.length == textLength);
+        }, 20000);
 
-            function insertSpans(){
-                for (let i = 0; i<allLines.length; i++){
-                    let rand = Math.floor(Math.random() * 20);
-                    if(rand <= lvl){
-                        let text = chooseText();
-                        $(allLines[i]).append(`<span>${text}</span>`)
-                    }
+        mainInput.on('keyup', checkInputTyping);
+
+        function checkInputTyping() {
+            let inputVal = $(this).val();
+            let self = $(this);
+            if (allText.includes(inputVal)) {
+                let index = allText.indexOf(inputVal);
+                allText.splice(index,1);
+                $('span').filter(function () {
+                    return $(this).text() == inputVal;
+                }).css('background', 'blue').fadeOut(100, function () {
+                    $(this).remove();
+                });
+                self.val("");
+                score++;
+                displayResult.html(score);
+            }
+
+        }
+
+        //console.log(typingWords);
+
+        function insertSpans() {
+            for (let i = 0; i < allLines.length; i++) {
+                let rand = Math.floor(Math.random() * 20);
+                if (rand <= lvl) {
+                    let text = chooseText();
+                    allText.push(text);
+                    $(allLines[i]).append(`<span>${text}</span>`)
                 }
             }
-            insertSpans();
+            setTimeout(insertSpans,7000);
+        }
+        insertSpans();
 
-            function chooseText(){
-                let rand = Math.floor(Math.random() * typingWords.length);
-                let savedText = typingWords[rand];
-                typingWords.splice(rand,1);
-                return savedText;
-            }
-
-            // animacija spanova
-            let moveAll = setInterval(function (){
-                let allSpans = $('span');
-                allSpans.css({
-                    left : `+=`+speed
-                })
-
-                //testiranje
-                $.each(allSpans, (index,el)=>{
-                    let position = $(el).position().left;
-                    if(position > 850)[
-                        clearAllIntervals()
-                    ]
-                })
-            },5)
-
-            function clearAllIntervals(){
-                clearInterval(moveAll);
+        function chooseText() {
+            let rand = Math.floor(Math.random() * typingWords.length);
+            let savedText = typingWords[rand];
+            typingWords.splice(rand, 1);
+            return savedText;
         }
 
+        // animacija spanova
+        let moveAll = setInterval(function () {
+            let allSpans = $('span');
+            allSpans.css({
+                left: `+=` + speed
+            })
+
+            //testiranje
+            $.each(allSpans, (index, el) => {
+                let position = $(el).position().left;
+                if (position > 850) {
+                    clearAllIntervals()
+                } else if (position > 700 && position < 710) {
+                    $(el).addClass('danger');
+                }
+            })
+        }, 5)
+
+        function clearAllIntervals() {
+            clearInterval(moveAll);
         }
-    })()
+
+    }
+})()

@@ -156,3 +156,9 @@ span {
 .line-13 {
     top: 490px;
 }
+
+
+.danger {
+    background: #d82505;
+    color: white;
+}
